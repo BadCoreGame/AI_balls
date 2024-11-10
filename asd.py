@@ -1,2 +1,0 @@
-sosi
-chlen
