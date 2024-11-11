@@ -1,0 +1,14 @@
+names:
+- bowling-ball
+- bowling-pins
+- sweep board
+nc: 3
+roboflow:
+  license: CC BY 4.0
+  project: bowling-bid3t
+  url: https://universe.roboflow.com/bowling-dizoj/bowling-bid3t/dataset/1
+  version: 1
+  workspace: bowling-dizoj
+test: ../test/images
+train: Bowling-1/train/images
+val: Bowling-1/valid/images

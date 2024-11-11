@@ -5,7 +5,6 @@ import torch
 
 # Загружаем модель YOLOv5
 model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
-#model = torch.hub.load('ultralytics/yolov5', 'custom', path='./best.pt') # Пытаюсь подключить локальную нейронку, но не получается :(
 
 # Функция для обработки изображения
 def process_image():
