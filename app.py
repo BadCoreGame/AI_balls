@@ -1,6 +1,7 @@
 # Import module
 import tkinter as tk
 from tkinter import Tk
+from tkinter import *
 from tkinter import filedialog
 import cv2
 from PIL import Image, ImageTk
@@ -8,13 +9,13 @@ import torch
 import numpy as np
 import os
 
-# Create object
+# Создаёт объект
 root = Tk()
 root.bind("<Escape>", lambda e: root.quit())
 root.title("Распознавание изображений используя YOLOv5")
 
 # Установить размеры окна
-root.geometry("800x600")  # You can change this to any desired size
+root.geometry("800x600")
 root.resizable(True, True)  # Разрешает изменение окна
 
 # Загрузить YOLOv5 модель с верификацией
@@ -25,19 +26,12 @@ except Exception as e:
     print("Ошибка загрузки YOLOv5 модели:", e)
 
 def main_page():
-    def upload_vid_func():
+    def upload_img_func():
         def browse_file():
-            def run_yolov5_on_video():
-                 def go_back_to_main_frame():
-                    cap.release()
-                    display_frame1.place_forget()
-                    display_frame2.place_forget()
-                    back_frame.place_forget()
-                    main_frame.place(relx=0.5, rely=0.5, width = 500, height = 500, anchor=tk.CENTER)
-                 
+            def run_yolov5_on_image():
                  browse_frame.place_forget()
                  width, height = 700, 700
-                #  print(file_path)
+                 print(file_path)
                  cap = cv2.VideoCapture(file_path)
                  cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
                  cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
@@ -45,20 +39,14 @@ def main_page():
                  display_frame1 = tk.Frame(root)
                  display_frame1.place(relx=0.2, rely=0.5, width = 600, height = 700, anchor=tk.CENTER)
 
-                 display_frame1_label = tk.Label(display_frame1, text = "Оригинал", font = ('Arial', 16), bg = "yellow")
+                 display_frame1_label = tk.Label(display_frame1, text = "Оригинал", font = ('Arial', 16), bg = "azure3")
                  display_frame1_label.pack(side=tk.TOP)
 
                  display_frame2 = tk.Frame(root)
                  display_frame2.place(relx=0.8, rely=0.5, width = 600, height = 700, anchor=tk.CENTER)
 
-                 display_frame2_label = tk.Label(display_frame2, text = "Обнаружение", font = ('Arial', 16), bg = "yellow")
+                 display_frame2_label = tk.Label(display_frame2, text = "Обнаружение", font = ('Arial', 16), bg = "azure3")
                  display_frame2_label.pack(side=tk.TOP)
-
-                 back_frame = tk.Frame(root)
-                 back_frame.pack(side=tk.TOP, anchor=tk.NW)
-                 back_button = tk.Button(back_frame, text= "BACK", font=("Rockwell", 12), command=go_back_to_main_frame)
-                 back_button.pack()
-
 
                  lmain = tk.Label(display_frame1)
                  lmain1 = tk.Label(display_frame2)
@@ -101,35 +89,33 @@ def main_page():
                 
                  show_frame()
 
-            filename = filedialog.askopenfilename(filetypes=[("video files", "*.*")])
+            filename = filedialog.askopenfilename(filetypes=[("image files", ("*.jpg", "*.jpeg", "*.png", "*.gif", "*.bmp"))])
             file_path = os.path.abspath(filename)
 
-            run_yolov5_on_video()
+            run_yolov5_on_image()
         
         main_frame.place_forget()
 
-        browse_frame = tk.Frame(root, bg = "orange")
+        browse_frame = tk.Frame(root, bg = "azure4")
         browse_frame.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
         
-        browse_button = tk.Button(browse_frame, text="Browse", font= ("Arial", 20), bg="Yellow", fg="white", command=browse_file)
+        browse_button = tk.Button(browse_frame, text="Browse", font= ("Arial", 20), bg = "#FFCDD2", fg = "#B71C1C", command=browse_file)
         browse_button.pack()
 
-    main_frame = tk.Frame(root, bg="orange")
+    main_frame = tk.Frame(root, bg="azure4")
 
     main_frame.place(relx=0.5, rely=0.5, width = 500, height = 500, anchor=tk.CENTER)
     
     
-    upload_vid = tk.Button(main_frame, text = "Загрузить файл", command = upload_vid_func, bg = "yellow", fg = "purple", font=('Arial', 18))
+    upload_vid = tk.Button(main_frame, text = "Загрузить файл", command = upload_img_func, bg = "#FFCDD2", fg = "#B71C1C", font=('Arial', 18))
     
     upload_vid.place(x = 180, y = 100)
 
 main_page()
 
-Title_label = tk.Label(root, text = "YOLOv5 Object detection", font = ('Arial', 20), bg = "yellow")
-Title_label.pack(side=tk.TOP)
-
-IsBowling_label = tk.Label(root, text = "аавыаыв", font = ('Arial', 20), bg = "yellow")
+# Есть ли на картинке боулинг?
+IsBowling_label = tk.Label(root, text = "аавыаыв", font = ('Arial', 20), bg = "#FFCDD2", fg = "#B71C1C")
 IsBowling_label.pack(side=tk.BOTTOM)
 
-# Execute tkinter
+# Запускает Tkinter
 root.mainloop()
