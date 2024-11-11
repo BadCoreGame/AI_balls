@@ -1,7 +1,3 @@
-11.11.2024
-app-old.py - добавлена загрузка фотографий, но не настроена и не удобна в использовании обычному пользователю
-
-```
 # Import module
 import tkinter as tk
 from tkinter import Tk
@@ -123,4 +119,3 @@ IsBowling_label.pack(side=tk.BOTTOM)
 
 # Запускает Tkinter
 root.mainloop()
-```

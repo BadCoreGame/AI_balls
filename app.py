@@ -1,135 +1,79 @@
-# Import module
 import tkinter as tk
-from tkinter import Tk
 from tkinter import filedialog
-import cv2
 from PIL import Image, ImageTk
 import torch
-import numpy as np
-import os
 
-# Create object
-root = Tk()
-root.bind("<Escape>", lambda e: root.quit())
-root.title("Распознавание изображений используя YOLOv5")
+# Загружаем модель YOLOv5
+model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
 
-# Установить размеры окна
-root.geometry("800x600")  # You can change this to any desired size
-root.resizable(True, True)  # Разрешает изменение окна
+# Функция для обработки изображения
+def process_image():
+    if not hasattr(process_image, 'file_path') or not process_image.file_path:
+        result_label.config(text="Пожалуйста, загрузите изображение.")
+        return
 
-# Загрузить YOLOv5 модель с верификацией
-try:
-    model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
-    print("YOLOv5 модель загружена успешно.")
-except Exception as e:
-    print("Ошибка загрузки YOLOv5 модели:", e)
+    # Загружаем и обрабатываем изображение
+    img = Image.open(process_image.file_path)
+    results = model(img)
 
-def main_page():
-    def upload_vid_func():
-        def browse_file():
-            def run_yolov5_on_video():
-                 def go_back_to_main_frame():
-                    cap.release()
-                    display_frame1.place_forget()
-                    display_frame2.place_forget()
-                    back_frame.place_forget()
-                    main_frame.place(relx=0.5, rely=0.5, width = 500, height = 500, anchor=tk.CENTER)
-                 
-                 browse_frame.place_forget()
-                 width, height = 700, 700
-                #  print(file_path)
-                 cap = cv2.VideoCapture(file_path)
-                 cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
-                 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+    # Отображаем изображение с выделенными объектами
+    results_img = results.render()[0]
+    results_img = Image.fromarray(results_img)
+    results_img = results_img.resize((400, 400))
+    img_tk = ImageTk.PhotoImage(results_img)
+    canvas.create_image(0, 0, anchor="nw", image=img_tk)
+    canvas.image = img_tk
 
-                 display_frame1 = tk.Frame(root)
-                 display_frame1.place(relx=0.2, rely=0.5, width = 600, height = 700, anchor=tk.CENTER)
+    # Проверяем, обнаружены ли объекты, похожие на боулинг
+    labels = results.pandas().xyxy[0]['name']
+    confidences = results.pandas().xyxy[0]['confidence']
 
-                 display_frame1_label = tk.Label(display_frame1, text = "Оригинал", font = ('Arial', 16), bg = "yellow")
-                 display_frame1_label.pack(side=tk.TOP)
+    bowling_detected = False
+    max_confidence = 0.0
+    for label, confidence in zip(labels, confidences):
+        if label == "sports ball":  # YOLO может интерпретировать боулинг как спортивный мяч
+            bowling_detected = True
+            max_confidence = max(max_confidence, confidence)
 
-                 display_frame2 = tk.Frame(root)
-                 display_frame2.place(relx=0.8, rely=0.5, width = 600, height = 700, anchor=tk.CENTER)
+    # Обновляем результат
+    if bowling_detected:
+        result_label.config(text=f"Обнаружен боулинг с точностью {max_confidence * 100:.2f}%")
+    else:
+        result_label.config(text="Боулинг не обнаружен")
 
-                 display_frame2_label = tk.Label(display_frame2, text = "Обнаружение", font = ('Arial', 16), bg = "yellow")
-                 display_frame2_label.pack(side=tk.TOP)
+# Функция для загрузки изображения
+def load_image():
+    process_image.file_path = filedialog.askopenfilename(
+        filetypes=[("Image files", "*.jpg;*.jpeg;*.png")]
+    )
+    if process_image.file_path:
+        img = Image.open(process_image.file_path)
+        img = img.resize((400, 400))
+        img_tk = ImageTk.PhotoImage(img)
+        canvas.create_image(0, 0, anchor="nw", image=img_tk)
+        canvas.image = img_tk
+        result_label.config(text="")
 
-                 back_frame = tk.Frame(root)
-                 back_frame.pack(side=tk.TOP, anchor=tk.NW)
-                 back_button = tk.Button(back_frame, text= "BACK", font=("Rockwell", 12), command=go_back_to_main_frame)
-                 back_button.pack()
+# Создаем основное окно
+root = tk.Tk()
+root.title("Bowling Detector")
+root.geometry("500x600")
+root.resizable(False, False)
 
+# Кнопка загрузки изображения
+load_button = tk.Button(root, text="Загрузить изображение", command=load_image, font=("Arial", 14), bg="lightblue")
+load_button.pack(pady=10)
 
-                 lmain = tk.Label(display_frame1)
-                 lmain1 = tk.Label(display_frame2)
-                 lmain.place(x = 0, y = 100, width=600, height=600)
-                 lmain1.place(x = 0, y = 100, width=600, height=600)
-        
-                 def show_frame():
-                    
-                    _, frame = cap.read()
-                    # frame2 = cv2.flip(frame, 1)
-                    frame2 = frame
-                    cv2image = cv2.cvtColor(frame2, cv2.COLOR_BGR2RGBA)
-                    img = Image.fromarray(cv2image)
+# Поле для отображения изображения
+canvas = tk.Canvas(root, width=400, height=400, bg="white")
+canvas.pack()
 
-                    imgtk = ImageTk.PhotoImage(image=img)
-                    lmain.imgtk = imgtk
-                    lmain.configure(image=imgtk)
-                    
-                    # Perform inference
-                    results = model(frame)
+# Кнопка обработки изображения
+process_button = tk.Button(root, text="Обработать", command=process_image, font=("Arial", 14), bg="lightgreen")
+process_button.pack(pady=10)
 
-                    # Parse results and draw bounding boxes
-                    for *xyxy, conf, cls in results.xyxy[0]:
-                        if conf>0.5:
-                            label = f'{model.names[int(cls)]} {conf:.2f}'
-                            cv2.rectangle(frame, (int(xyxy[0]), int(xyxy[1])), (int(xyxy[2]), int(xyxy[3])), (255,0,0), 2)
-                            cv2.putText(frame, label, (int(xyxy[0]), int(xyxy[1])-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,0,0), 2)
+# Метка для отображения результата
+result_label = tk.Label(root, text="", font=("Arial", 14), fg="black")
+result_label.pack(pady=10)
 
-                    # frame3 = cv2.flip(frame, 1)
-                    frame3 = frame
-                    cv2image2 = cv2.cvtColor(frame3, cv2.COLOR_BGR2RGBA)
-                    img2 = Image.fromarray(cv2image2)
-
-                    imgtk2 = ImageTk.PhotoImage(image=img2)
-
-                    lmain1.imgtk = imgtk2
-                    lmain1.configure(image=imgtk2)
-                
-                    lmain.after(1, show_frame)
-                
-                 show_frame()
-
-            filename = filedialog.askopenfilename(filetypes=[("video files", "*.*")])
-            file_path = os.path.abspath(filename)
-
-            run_yolov5_on_video()
-        
-        main_frame.place_forget()
-
-        browse_frame = tk.Frame(root, bg = "orange")
-        browse_frame.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
-        
-        browse_button = tk.Button(browse_frame, text="Browse", font= ("Arial", 20), bg="Yellow", fg="white", command=browse_file)
-        browse_button.pack()
-
-    main_frame = tk.Frame(root, bg="orange")
-
-    main_frame.place(relx=0.5, rely=0.5, width = 500, height = 500, anchor=tk.CENTER)
-    
-    
-    upload_vid = tk.Button(main_frame, text = "Загрузить файл", command = upload_vid_func, bg = "yellow", fg = "purple", font=('Arial', 18))
-    
-    upload_vid.place(x = 180, y = 100)
-
-main_page()
-
-Title_label = tk.Label(root, text = "YOLOv5 Object detection", font = ('Arial', 20), bg = "yellow")
-Title_label.pack(side=tk.TOP)
-
-IsBowling_label = tk.Label(root, text = "аавыаыв", font = ('Arial', 20), bg = "yellow")
-IsBowling_label.pack(side=tk.BOTTOM)
-
-# Execute tkinter
 root.mainloop()
