@@ -4,18 +4,13 @@ from PIL import Image, ImageTk
 import torch
 from ultralytics import YOLO
 
-# Load a model
-#model = YOLO("yolo11n.pt")  # load an official model
-#model = YOLO("./best.pt")  # load a custom model
-
+# Загрузка модели
+#model = YOLO("yolo11n.pt")  # Оффициальная модель
 try:
     model = YOLO("./best.pt")  # load a custom model
     print("YOLOv11 модель загружена успешно.")
 except Exception as e:
     print("Ошибка загрузки YOLOv11 модели:", e)
-
-# Загружаем модель YOLOv5
-#model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
 
 # Функция для обработки изображения
 def process_image():
@@ -26,6 +21,7 @@ def process_image():
     # Загружаем и обрабатываем изображение
     img = Image.open(process_image.file_path)
     results = model(img)
+    print("Изображение обработано.")
 
     # Отображаем изображение с выделенными объектами #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     # Не работает рендер!!!
@@ -36,6 +32,7 @@ def process_image():
     img_tk = ImageTk.PhotoImage(results_img)
     canvas.create_image(0, 0, anchor="nw", image=img_tk)
     canvas.image = img_tk
+    print("Результаты отобразились.")
 
     # Проверяем, обнаружены ли объекты, похожие на боулинг
     labels = results.pandas().xyxy[0]['name']
@@ -51,14 +48,17 @@ def process_image():
     # Обновляем результат
     if bowling_detected:
         result_label.config(text=f"Обнаружен боулинг с точностью {max_confidence * 100:.2f}%")
+        print(f"Обнаружен боулинг с точностью {max_confidence * 100:.2f}%")
     else:
         result_label.config(text="Боулинг не обнаружен")
+        print("Боулинг не обнаружен.")
 
 # Функция для загрузки изображения
 def load_image():
     process_image.file_path = filedialog.askopenfilename(
         filetypes=[("Image files", "*.jpg;*.jpeg;*.png")]
     )
+    print("Изображение загружено.")
     if process_image.file_path:
         img = Image.open(process_image.file_path)
         img = img.resize((400, 400))
