@@ -4,7 +4,9 @@ from PIL import Image, ImageTk
 import torch
 
 # Загружаем модель YOLOv5
-model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
+#model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
+
+model = torch.hub.load('./yolov5', 'custom', path='./best.pt', source="local")
 
 # Функция для обработки изображения
 def process_image():
@@ -31,7 +33,7 @@ def process_image():
     bowling_detected = False
     max_confidence = 0.0
     for label, confidence in zip(labels, confidences):
-        if label == "sports ball":  # YOLO может интерпретировать боулинг как спортивный мяч
+        if label == "vase":  # YOLO может интерпретировать боулинг как спортивный мяч
             bowling_detected = True
             max_confidence = max(max_confidence, confidence)
 

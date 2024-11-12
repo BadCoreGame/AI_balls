@@ -123,3 +123,7 @@ IsBowling_label.pack(side=tk.BOTTOM)
 # Запускает Tkinter
 root.mainloop()
 ```
+
+
+
+Нужно перетренировать модель на этом устройстве, т.к. модель yolov5s спокойно запускает и обрабатывает, а наша (best.pt) - нет
