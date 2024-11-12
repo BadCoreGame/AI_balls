@@ -44,7 +44,7 @@ def process_image():
     bowling_detected = False
     max_confidence = 0.0
     for label, confidence in zip(labels, confidences):
-        if label == "vase":  # YOLO может интерпретировать боулинг как спортивный мяч
+        if label == "bowling-ball" and "bowling-pins":  # YOLO может интерпретировать боулинг как спортивный мяч
             bowling_detected = True
             max_confidence = max(max_confidence, confidence)
 
