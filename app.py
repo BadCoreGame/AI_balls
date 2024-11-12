@@ -29,7 +29,8 @@ def process_image():
 
     # Отображаем изображение с выделенными объектами #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     # Не работает рендер!!!
-    results_img = results.render()[0]
+    #results_img = results.render()[0] # Не рабочая строка
+    results[0].show()
     results_img = Image.fromarray(results_img)
     results_img = results_img.resize((400, 400))
     img_tk = ImageTk.PhotoImage(results_img)
