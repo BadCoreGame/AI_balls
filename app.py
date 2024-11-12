@@ -2,11 +2,20 @@ import tkinter as tk
 from tkinter import filedialog
 from PIL import Image, ImageTk
 import torch
+from ultralytics import YOLO
+
+# Load a model
+#model = YOLO("yolo11n.pt")  # load an official model
+#model = YOLO("./best.pt")  # load a custom model
+
+try:
+    model = YOLO("./best.pt")  # load a custom model
+    print("YOLOv11 модель загружена успешно.")
+except Exception as e:
+    print("Ошибка загрузки YOLOv11 модели:", e)
 
 # Загружаем модель YOLOv5
 #model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
-
-model = torch.hub.load('./yolov5', 'custom', path='./best.pt', source="local")
 
 # Функция для обработки изображения
 def process_image():
@@ -18,7 +27,8 @@ def process_image():
     img = Image.open(process_image.file_path)
     results = model(img)
 
-    # Отображаем изображение с выделенными объектами
+    # Отображаем изображение с выделенными объектами #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    # Не работает рендер!!!
     results_img = results.render()[0]
     results_img = Image.fromarray(results_img)
     results_img = results_img.resize((400, 400))
